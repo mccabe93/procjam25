@@ -1,6 +1,6 @@
 ProcJam 2025 submission created in ~1.5 days. I worked along with the artist nebelstern https://www.instagram.com/teknomegami/
 
-https://mumike.itch.io/frozen-zombies-in-space
+Game: https://mumike.itch.io/frozen-zombies-in-space
 
 The core of the game, and the jam, is a random level generator. I aimed to keep the level generation models flexible for porting into other game engines, and I think that goal was accomplished.
 
