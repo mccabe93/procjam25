@@ -15,6 +15,8 @@ public sealed class Room
     public Room From { get; set; }
     public Room To { get; set; }
     public ConnectionSide ConnectionFromSide { get; set; }
+    public int HallwayX { get; set; }
+    public int HallwayY { get; set; }
     public int HallwaySize { get; set; }
     public int X { get; set; }
     public int Y { get; set; }
@@ -22,30 +24,21 @@ public sealed class Room
     public int Height { get; set; }
 }
 
-[Serializable]
 public sealed class RoomHallConfiguration
 {
-    [Range(1, 10)]
     public int RoomMinimumHeight = 10;
 
-    [Range(1, 20)]
     public int RoomMaximumHeight = 20;
-
-    [Range(1, 10)]
     public int RoomMinimumWidth = 10;
 
-    [Range(1, 20)]
     public int RoomMaximumWidth = 30;
 
-    [Range(1, 20)]
-    public int HallwayMinimumSize = 3;
+    // Needs more work for unity integration . . .
+    public int HallwayMinimumSize = 0;
 
-    [Range(1, 40)]
-    public int HallwayMaximumSize = 6;
+    public int HallwayMaximumSize = 0;
 
-    [Range(int.MinValue, int.MaxValue)]
     public int Seed = 128;
 
-    [Range(1, 20)]
     public int RoomCount = 16;
 }

@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 // Each step is an iteration. RandomFill is iteration 0.
 public enum CellularAutomataStep
@@ -12,64 +11,47 @@ public enum CellularAutomataStep
     PlaceItems = 5,
 }
 
-[Serializable]
-public sealed class VariantSettings : MonoBehaviour
+public sealed class CellularAutomataConfiguration<T>
 {
-    public GameObject Variant;
-
-    /// <summary>
-    /// If true, a fillable tile area can be filled with this variant.
-    /// </summary>
-    public bool CanFill;
-
-    [Range(0.0f, 1.0f)]
-    public float Frequency;
-}
-
-[Serializable]
-public sealed class CellularAutomataConfiguration
-{
-    [Range(0f, 1f)]
     public float RandomFillFrequency = 0.45f;
 
-    [Range(0, 100)]
     public int TotalIterations = 5;
 
-    [Range(1, 10)]
     public int BirthLimit = 5;
 
-    [Range(1, 10)]
     public int DeathLimit = 2;
 
-    [Range(1, 10)]
     public int Width = 10;
 
-    [Range(1, 10)]
     public int Height = 10;
 
-    [Range(0, int.MaxValue)]
     public int Seed = 64;
 
     // FloorVariant Iteration
-    [Range(0.0f, 1.0f)]
+    public T FloorDefault;
+
     public float FillFloorVariantFrequency = 0.05f;
 
-    [Range(0.0f, 1.0f)]
     public float FloorVariantFrequency = 0.25f;
-    public GameObject[] FloorVariants;
+    public T[] FloorVariants;
 
-    [Range(0.0f, 1.0f)]
+    public T LowerWallDefault;
+
     public float LowerWallVariantFrequency = 0.0f;
-    public GameObject[] LowerWallVariants;
+    public T[] LowerWallVariants;
 
-    [Range(0.0f, 1.0f)]
+    public T UpperWallDefault;
+
     public float UpperWallVariantFrequency = 0.10f;
-    public GameObject[] UpperWallVariants;
+    public T[] UpperWallVariants;
 
     // Decorations Iteration
 
     // Actors Iteartion
-    public float ActorProbability = 0.1f;
+    public float ActorFrequency = 0.1f;
+
+    public T ActorDefault;
+    public T[] Actors;
 
     // An adversary to the room's population.
     public float AdversarialActorProbability = 0.2f;

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 // Reference:
@@ -8,16 +7,8 @@ using UnityEngine;
 public class UnityRoomGenerator : MonoBehaviour
 {
     [SerializeField]
-    private CellularAutomataConfiguration CAConfig;
-
-    [SerializeField]
-    private GameObject[] FloorTiles;
-
-    [SerializeField]
-    private GameObject[] WallLowerTiles;
-
-    [SerializeField]
-    private GameObject[] WallUpperTiles;
+    public UnityCellularAutomataSettings CAConfig;
+    public bool DebugMode = false;
 
     private List<GameObject> _floorTilesList = new List<GameObject>();
     private List<GameObject> _wallLowerTilesList = new List<GameObject>();
@@ -25,14 +16,31 @@ public class UnityRoomGenerator : MonoBehaviour
 
     private List<GameObject> _fillableFloorTileList = new List<GameObject>();
 
-    private CellularAutomataLevelGenerator _generator;
+    private CellularAutomataLevelGenerator<GameObject> _generator;
 
-    private void Start()
+    // We assume uniformity
+    private Bounds _floorBounds;
+    private Bounds _wallBounds;
+
+    public Bounds FloorBounds => _floorBounds;
+    public Bounds WallBounds => _wallBounds;
+
+    private void Awake()
     {
-        _fillableFloorTileList = FloorTiles
-            .Where(tile => tile.GetComponent<VariantSettings>().CanFill)
+        _fillableFloorTileList = CAConfig
+            .FloorVariants.Where(t => t.GetComponent<UnityVariantSettings>().CanFill)
             .ToList();
-        _generator = new CellularAutomataLevelGenerator(CAConfig);
+        _floorBounds = CAConfig.FloorDefault.GetComponent<SpriteRenderer>().bounds;
+        _wallBounds = CAConfig.LowerWallDefault.GetComponent<SpriteRenderer>().bounds;
+        if (DebugMode)
+        {
+            GenerateRoom(Vector3.zero);
+        }
+    }
+
+    public void GenerateRoom(Vector3 position)
+    {
+        _generator = new CellularAutomataLevelGenerator<GameObject>(CAConfig.ToConfiguration());
         _generator.RandomFill();
         for (int i = 0; i < CAConfig.TotalIterations; i++)
         {
@@ -40,79 +48,148 @@ public class UnityRoomGenerator : MonoBehaviour
             switch (_generator.Step)
             {
                 case CellularAutomataStep.PopulateFloorVariants:
+                    AddFloorVariants(state, position);
+                    break;
+                case CellularAutomataStep.SpawnActors:
+                    AddActors(state, position);
                     break;
             }
         }
-        int[,] level = _generator.Level;
-        StringBuilder sb = new StringBuilder();
-        for (int y = 0; y < CAConfig.Height; y++)
-        {
-            for (int x = 0; x < CAConfig.Width; x++)
-            {
-                sb.Append(level[x, y] == 1 ? '#' : '.');
-                if (level[x, y] != 1)
-                {
-                    GameObject floorTile = Instantiate(
-                        FloorTiles[Random.Range(0, FloorTiles.Length)]
-                    );
-                    floorTile.transform.position = new Vector3(x, 0, y);
-                    _floorTilesList.Add(floorTile);
-                }
-                else
-                {
-                    GameObject wallLowerTile = Instantiate(
-                        WallLowerTiles[Random.Range(0, WallLowerTiles.Length)]
-                    );
-                    wallLowerTile.transform.position = new Vector3(x, 0, y);
-                    _wallLowerTilesList.Add(wallLowerTile);
-                    GameObject wallUpperTile = Instantiate(
-                        WallUpperTiles[Random.Range(0, WallUpperTiles.Length)]
-                    );
-                    wallUpperTile.transform.position = new Vector3(x, 1, y);
-                    _wallUpperTilesList.Add(wallUpperTile);
-                }
-                sb.AppendLine();
-            }
-        }
-        Debug.Log(sb.ToString());
+        AddWalls(position);
+        AddFloorCollider(position);
     }
 
-    private void AddFloorVariants(int[,] state)
+    private void AddFloorVariants(int[,] state, Vector3 position)
     {
+        Transform t = GetComponent<Transform>();
         for (int y = 0; y < CAConfig.Height; y++)
         {
             for (int x = 0; x < CAConfig.Width; x++)
             {
+                GameObject tile;
                 if (state[x, y] == 1)
                 {
-                    GameObject floorTile = Instantiate(
-                        FloorTiles[Random.Range(0, FloorTiles.Length)]
+                    tile = Instantiate(
+                        CAConfig.FloorVariants[Random.Range(0, CAConfig.FloorVariants.Length)]
                     );
-                    floorTile.transform.position = new Vector3(x, 0, y);
-                    _floorTilesList.Add(floorTile);
                 }
                 else if (state[x, y] == 2) // Fill tile variant
                 {
-                    GameObject floorTile = Instantiate(
+                    tile = Instantiate(
                         _fillableFloorTileList[Random.Range(0, _fillableFloorTileList.Count)]
                     );
-                    floorTile.transform.position = new Vector3(x, 0, y);
-                    _floorTilesList.Add(floorTile);
                 }
-                /*
-                    GameObject wallLowerTile = Instantiate(
-                        WallLowerTiles[Random.Range(0, WallLowerTiles.Length)]
-                    );
-                    wallLowerTile.transform.position = new Vector3(x, 0, y);
-                    WallLowerTilesList.Add(wallLowerTile);
-                    GameObject wallUpperTile = Instantiate(
-                        WallUpperTiles[Random.Range(0, WallUpperTiles.Length)]
-                    );
-                    wallUpperTile.transform.position = new Vector3(x, 1, y);
-                    WallUpperTilesList.Add(wallUpperTile);
+                else
+                {
+                    tile = Instantiate(CAConfig.FloorDefault);
                 }
-                */
+                tile.transform.position = new Vector3(
+                    (position.x + x) * _floorBounds.size.x,
+                    0,
+                    (position.z + y) * _floorBounds.size.z
+                );
+                _floorTilesList.Add(tile);
             }
         }
+    }
+
+    private void AddActors(int[,] state, Vector3 position)
+    {
+        Transform t = GetComponent<Transform>();
+        for (int y = 0; y < CAConfig.Height; y++)
+        {
+            for (int x = 0; x < CAConfig.Width; x++)
+            {
+                if (state[x, y] == 2) // Actor spawn
+                {
+                    GameObject actor = Instantiate(
+                        CAConfig.ActorDefault,
+                        new Vector3(
+                            (position.x + x) * _floorBounds.size.x,
+                            0,
+                            (position.z + y) * _floorBounds.size.z
+                        ),
+                        Quaternion.identity
+                    );
+                }
+            }
+        }
+    }
+
+    private void AddWalls(Vector3 position)
+    {
+        Quaternion leftWallRotation = Quaternion.Euler(0, 270, 0);
+        Quaternion rightWallRotation = Quaternion.Euler(0, -90, 0);
+        Quaternion belowWallRotation = Quaternion.Euler(0, 0, 0);
+        Quaternion aboveWallRotation = Quaternion.Euler(0, 0, 0);
+        Transform t = GetComponent<Transform>();
+        for (int y = 0; y < CAConfig.Height; y++)
+        {
+            CreateWallAtPosition(
+                new Vector3(
+                    position.x * _floorBounds.size.x,
+                    0,
+                    (position.z + y) * _floorBounds.size.z
+                ),
+                leftWallRotation
+            );
+            CreateWallAtPosition(
+                new Vector3(
+                    (position.x + CAConfig.Width) * _floorBounds.size.x,
+                    0,
+                    (position.z + y) * _floorBounds.size.z
+                ),
+                rightWallRotation
+            );
+        }
+        for (int x = 0; x < CAConfig.Width; x++)
+        {
+            CreateWallAtPosition(
+                new Vector3(
+                    (position.x + x) * _floorBounds.size.x,
+                    0,
+                    position.z * _floorBounds.size.z
+                ),
+                belowWallRotation
+            );
+            CreateWallAtPosition(
+                new Vector3(
+                    (position.x + x) * _floorBounds.size.x,
+                    0,
+                    (position.z + CAConfig.Height) * _floorBounds.size.z
+                ),
+                aboveWallRotation
+            );
+        }
+    }
+
+    private void AddFloorCollider(Vector3 position)
+    {
+        float width = CAConfig.Width * _floorBounds.size.x;
+        float height = CAConfig.Height * _floorBounds.size.z;
+        GameObject colliderObj = new GameObject($"RoomFloorCollider-{System.Guid.NewGuid()}");
+        colliderObj.transform.parent = this.transform;
+        colliderObj.transform.position = new Vector3(
+            (position.x + CAConfig.Width / 2f) * _floorBounds.size.x,
+            0f,
+            (position.z + CAConfig.Height / 2f) * _floorBounds.size.z
+        );
+
+        BoxCollider collider = colliderObj.AddComponent<BoxCollider>();
+        collider.size = new Vector3(width, 0.01f, height);
+        collider.center = Vector3.zero;
+    }
+
+    private void CreateWallAtPosition(Vector3 position, Quaternion rotation)
+    {
+        GameObject lowerWall = Instantiate(CAConfig.LowerWallDefault);
+        lowerWall.transform.position = position;
+        lowerWall.transform.rotation = rotation;
+        _wallLowerTilesList.Add(lowerWall);
+        GameObject upperWall = Instantiate(CAConfig.UpperWallDefault);
+        position.y += _wallBounds.size.y;
+        upperWall.transform.position = position;
+        upperWall.transform.rotation = rotation;
+        _wallUpperTilesList.Add(upperWall);
     }
 }
