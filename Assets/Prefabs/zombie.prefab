@@ -219,6 +219,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ZombieController
   Animator: {fileID: 4103191294387886935}
   Health: 10
+  OnHitSound: {fileID: 8300000, guid: 550a254c4f1072f40996da6baa3c73df, type: 3}
   ZombieAi: {fileID: 4820246442088418659}
 --- !u!54 &1936056335077431121
 Rigidbody:

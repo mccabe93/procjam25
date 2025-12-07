@@ -7,6 +7,9 @@ public class PlayerSoldier : MonoBehaviour
     public delegate void DiedHandler();
     public event DiedHandler OnDied;
 
+    public AudioClip[] OnShootSound;
+    public AudioClip[] OnReloadSound;
+
     public int Health = 2;
     public int MaxAmmo = 6;
     public int Ammo = 6;
@@ -59,6 +62,8 @@ public class PlayerSoldier : MonoBehaviour
         if (Ammo > 0 && !IsReloading)
         {
             Ammo -= 1;
+            var soundIndex = Random.Range(0, OnShootSound.Length);
+            AudioSource.PlayClipAtPoint(OnShootSound[soundIndex], transform.position);
             Hud.RemoveBullet();
             GameObject bullet = Instantiate(
                 Bullet,
@@ -79,6 +84,8 @@ public class PlayerSoldier : MonoBehaviour
             {
                 break;
             }
+            var soundIndex = Random.Range(0, OnReloadSound.Length);
+            AudioSource.PlayClipAtPoint(OnReloadSound[soundIndex], transform.position);
             Ammo += 1;
             Hud.AddBullet();
         } while (Ammo < MaxAmmo);

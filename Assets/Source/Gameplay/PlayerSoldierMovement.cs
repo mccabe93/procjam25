@@ -1,14 +1,17 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 // Reference:
 // https://github.com/D-three/First-Person-Movement-Script-For-Unity/blob/main/First_Person_Movement.cs
-public class PlayerMovement : MonoBehaviour
+public class PlayerSoldierMovement : MonoBehaviour
 {
     private Vector3 Velocity;
     private Vector3 MovementInput;
     private Vector3 MouseInput;
     private float RotationX = 0.0f;
+
+    public AudioClip[] OnMoveSound;
 
     [SerializeField]
     private Transform CameraTransform;
@@ -34,10 +37,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private InputActionReference MouseAction;
 
+    private AudioSource _audioSource;
+    private DateTime _lastWalkSoundPlayTime = DateTime.MinValue;
+    private TimeSpan _minInterwalkSoundTime = TimeSpan.FromMilliseconds(300);
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        _audioSource = gameObject.AddComponent<AudioSource>();
+        _audioSource.volume = 0.1f;
     }
 
     void Update()
@@ -58,6 +67,18 @@ public class PlayerMovement : MonoBehaviour
         }
 
         Vector2 input = MoveAction.action.ReadValue<Vector2>();
+        if (input.magnitude > 0 && CharacterController.isGrounded)
+        {
+            if (
+                !_audioSource.isPlaying
+                && DateTime.UtcNow - _lastWalkSoundPlayTime > _minInterwalkSoundTime
+            )
+            {
+                _audioSource.clip = OnMoveSound[UnityEngine.Random.Range(0, OnMoveSound.Length)];
+                _audioSource.Play();
+                _lastWalkSoundPlayTime = DateTime.UtcNow;
+            }
+        }
         float verticalSpeed = input.y * Speed;
         float horizontalSpeed = input.x * Speed;
 

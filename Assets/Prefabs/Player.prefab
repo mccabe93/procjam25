@@ -179,8 +179,10 @@ GameObject:
   - component: {fileID: 3410740316395236751}
   - component: {fileID: 1614689624437196229}
   - component: {fileID: 33167643740706429}
+  - component: {fileID: 2276584733047737770}
+  - component: {fileID: 5818754532241463109}
   m_Layer: 6
-  m_Name: Controller
+  m_Name: SoldierController
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -214,7 +216,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   CurrentState: 0
-  SoldierMode: {fileID: 504153009688309139}
+  SoldierMode: {fileID: 2276584733047737770}
 --- !u!65 &33167643740706429
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -236,6 +238,61 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0.64, z: 0}
+--- !u!114 &2276584733047737770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7204612107973463010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81156a98e67d5e3488e994ebbd5abcc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSoldier
+  OnShootSound:
+  - {fileID: 8300000, guid: 69c7f87b4c650f140bf5863100894a77, type: 3}
+  - {fileID: 8300000, guid: ee978ed46c752c34a935ce646192a822, type: 3}
+  OnReloadSound:
+  - {fileID: 8300000, guid: 2cb0b869891f6b2499fb2351c49dc13f, type: 3}
+  - {fileID: 8300000, guid: aefd7673f4c5b8b4da1a74cdf7647fc1, type: 3}
+  Health: 2
+  MaxAmmo: 6
+  Ammo: 6
+  IsReloading: 0
+  IsShooting: 0
+  ReloadTime: 1
+  RecoilTime: 0.2
+  Hud: {fileID: 1440910320486218208}
+  Bullet: {fileID: 3596974443235375741, guid: df3fc34a6ed8c9841ada44d03e70651b, type: 3}
+  GunBarrel: {fileID: 265919294183661461}
+  PlayerTransform: {fileID: 1360046691936020768}
+  ReloadAction: {fileID: -8196077267333464744, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  AttackAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+--- !u!114 &5818754532241463109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7204612107973463010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92bb331f3d3a95145a79ea293b03c1ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  OnMoveSound:
+  - {fileID: 8300000, guid: 1b636f3e691bcbf418dd9b4a247dc5bc, type: 3}
+  - {fileID: 8300000, guid: 378152b55cec2384c9b6501825413346, type: 3}
+  - {fileID: 8300000, guid: 5c6ff152cd9b9984788fe0961fb518bc, type: 3}
+  CameraTransform: {fileID: 1360046691936020768}
+  CharacterController: {fileID: 7659788693743937268}
+  PlayerTransform: {fileID: 1913446260200860823}
+  Speed: 1
+  Sensitivity: 1
+  Gravity: -9.81
+  MoveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  MouseAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &8208061046818903235
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,11 +303,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1913446260200860823}
   - component: {fileID: 7659788693743937268}
-  - component: {fileID: 4300512282485132941}
   - component: {fileID: 5169503247009530709}
   - component: {fileID: 1708098999768504800}
   - component: {fileID: 7924920002224826173}
-  - component: {fileID: 504153009688309139}
   - component: {fileID: 1440910320486218208}
   m_Layer: 0
   m_Name: Player
@@ -268,7 +323,7 @@ Transform:
   m_GameObject: {fileID: 8208061046818903235}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.79999995, y: 0, z: 14.720002}
+  m_LocalPosition: {x: 1.5999999, y: 0, z: 24.320004}
   m_LocalScale: {x: 0.32, y: 0.32, z: 0.32}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -303,26 +358,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.64, z: 0}
---- !u!114 &4300512282485132941
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8208061046818903235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92bb331f3d3a95145a79ea293b03c1ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  CameraTransform: {fileID: 1360046691936020768}
-  CharacterController: {fileID: 7659788693743937268}
-  PlayerTransform: {fileID: 1913446260200860823}
-  Speed: 1
-  Sensitivity: 1
-  Gravity: -9.81
-  MoveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  MouseAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &5169503247009530709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,31 +461,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &504153009688309139
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8208061046818903235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81156a98e67d5e3488e994ebbd5abcc1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerSoldier
-  Health: 2
-  MaxAmmo: 6
-  Ammo: 6
-  IsReloading: 0
-  IsShooting: 0
-  ReloadTime: 1
-  RecoilTime: 0.2
-  Hud: {fileID: 1440910320486218208}
-  Bullet: {fileID: 3596974443235375741, guid: df3fc34a6ed8c9841ada44d03e70651b, type: 3}
-  GunBarrel: {fileID: 265919294183661461}
-  PlayerTransform: {fileID: 1360046691936020768}
-  ReloadAction: {fileID: -8196077267333464744, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  AttackAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &1440910320486218208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -491,6 +501,26 @@ PrefabInstance:
     - target: {fileID: 1934360004715193176, guid: bb99e73eba1ebd24ba15d9e7b43d2167, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3473843203463224255, guid: bb99e73eba1ebd24ba15d9e7b43d2167, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3473843203463224255, guid: bb99e73eba1ebd24ba15d9e7b43d2167, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5925369249773171643, guid: bb99e73eba1ebd24ba15d9e7b43d2167, type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5925369249773171643, guid: bb99e73eba1ebd24ba15d9e7b43d2167, type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 2400
+      objectReference: {fileID: 0}
+    - target: {fileID: 5925369249773171643, guid: bb99e73eba1ebd24ba15d9e7b43d2167, type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 1200
       objectReference: {fileID: 0}
     - target: {fileID: 7323104817466178672, guid: bb99e73eba1ebd24ba15d9e7b43d2167, type: 3}
       propertyPath: m_Pivot.x

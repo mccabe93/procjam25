@@ -1,17 +1,25 @@
-using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ZombieController : MonoBehaviour
 {
     public Animator Animator;
     public int Health = 10;
+    public AudioClip OnHitSound;
 
     public ZombieAI ZombieAi;
-    private bool _isFading = false;
+    private FlashVFX _flashVfx;
+    private FadeVFX _fadeVfx;
 
     void Awake()
     {
         ZombieAi.AwakeEvent += OnZombieAwake;
+        _fadeVfx = this.AddComponent<FadeVFX>();
+        _fadeVfx.Duration = 3.0f;
+        _fadeVfx.Parent = gameObject;
+        _flashVfx = this.AddComponent<FlashVFX>();
+        _flashVfx.Color = Color.red;
+        _flashVfx.Duration = 1.0f;
     }
 
     private void OnZombieAwake()
@@ -23,35 +31,18 @@ public class ZombieController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Bullet_Player")
         {
-            Health -= 10;
-            if (Health <= 0 && !_isFading)
+            AudioSource.PlayClipAtPoint(OnHitSound, transform.position, 0.1f);
+            Health -= 5;
+            if (Health <= 0 && !_fadeVfx.IsFading)
             {
                 Animator.Play("zombie-dead");
-                StartCoroutine("Fade");
                 Destroy(ZombieAi);
+                _fadeVfx.BeginFX();
+            }
+            else if (!_fadeVfx.IsFading && !_flashVfx.IsFlashing)
+            {
+                _flashVfx.BeginFX();
             }
         }
-    }
-
-    private IEnumerator Fade()
-    {
-        _isFading = true;
-        float fadeDuration = 3.0f;
-        float elapsedTime = 0.0f;
-        Renderer renderer = GetComponent<Renderer>();
-        Color originalColor = renderer.material.color;
-        while (elapsedTime < fadeDuration)
-        {
-            elapsedTime += 0.1f;
-            float alpha = Mathf.Lerp(1.0f, 0.0f, elapsedTime / fadeDuration);
-            renderer.material.color = new Color(
-                originalColor.r,
-                originalColor.g,
-                originalColor.b,
-                alpha
-            );
-            yield return new WaitForSeconds(0.1f);
-        }
-        Destroy(this.gameObject);
     }
 }
